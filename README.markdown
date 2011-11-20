@@ -12,11 +12,14 @@ going on. That means you can:
   * Use Python's HTTP facilities to their fullest extent (for example,
     file uploading)
 
-Also, the code behind the library tries to be simple and easy to
-understand, while refering to the relevant sections in the OAuth
-specification (http://tools.ietf.org/html/rfc5849). So, unlike other
-libraries, this is one that you can follow along with and learn more
-about OAuth from.
+The code behind the library tries to be simple and easy to understand,
+while refering to the relevant sections in the OAuth specification
+(http://tools.ietf.org/html/rfc5849). So, unlike other libraries, this
+is one that you can follow along with and learn more about OAuth from.
+
+Why the letter i in the name of the library? Because that's the letter
+that my name starts with. Also because I'm upholding the tradition of
+hackers not being able to name projects well.
 
 Twitter Example
 ---------------
