@@ -84,8 +84,8 @@ In the examples directory, there are more examples of how to use the
 library. Given that I like Beatport, I have included full examples of
 how to use both types of OAuth with Beatport's public OAuth API.
 
-License
--------
+License (New BSD)
+-----------------
 Copyright (c) 2011, Ilia Cheishvili
 All rights reserved.
 
