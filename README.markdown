@@ -81,6 +81,39 @@ own application credentials first).
     print body
     conn.close()
 
+Upload Example
+--------------
+
+Uploading files with authentication can be painful, especially if the
+files are large. With iOAuth, it can be a bit easier. Pretend that
+this PHP code lives at http://example.com/upload:
+
+    $in = fopen('php://input', 'r');
+    $out = fopen('/tmp/foo', 'w');
+    stream_copy_to_stream($in, $out);
+    fclose($in);
+    fclose($out);
+    echo json_encode(filesize('/tmp/foo'));
+
+Omitting getting the access token (the example for that is above),
+here is how to upload a large file to that endpoint:
+
+    ...
+    upload_url = 'http://example.com/upload'
+    import mmap
+    mp3 = open('/tmp/large_file.mp3', 'r+b')
+    mapped_mp3 = mmap.mmap(mp3.fileno(), 0, access=mmap.ACCESS_READ)
+    consumer = Consumer(consumer_key, consumer_secret, access_token)
+    signature = consumer.sign_request(upload_url, 'PUT')
+    headers = {'Authorization': signature.get_header()}
+    conn.request('PUT', parse_path(upload_url), mapped_mp3, headers)
+    response = conn.getresponse()
+    body = response.read()
+    print body
+    mapped_mp3.close()
+    mp3.close()
+    ...
+
 More Examples
 -------------
 In the examples directory, there are more examples of how to use the
