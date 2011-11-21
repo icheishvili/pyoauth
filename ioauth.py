@@ -1,3 +1,8 @@
+"""
+iOAuth is a Python library for dealing with OAuth.
+"""
+
+import hmac
 try:
     from hashlib import md5, sha1
 except ImportError:
@@ -5,17 +10,15 @@ except ImportError:
     import sha as sha1
 from datetime import datetime
 from time import time
-from binascii import hexlify
-import hmac
 from binascii import b2a_base64
-from urllib import urlencode, quote
+from urllib import quote
 from urlparse import urlparse
 try:
     from urlparse import parse_qs
 except ImportError:
     from cgi import parse_qs
 
-oauth_version = '1.0'
+OAUTH_VERSION = '1.0'
 
 def parse_path(url):
     """
@@ -49,22 +52,21 @@ def parse_port(url):
         else:
             return 80
 
-def encode_string(input):
+def encode_string(input_string):
     """
     Convert string to UTF-8 and encode it per
     http://tools.ietf.org/html/rfc5849#section-3.6
     """
-    if not isinstance(input, basestring):
-        input = str(input)
-    return quote(input.encode('utf-8'), safe='~')
+    if not isinstance(input_string, basestring):
+        input_string = str(input_string)
+    return quote(input_string.encode('utf-8'), safe='~')
 
 def generate_nonce():
     """
     Generate a unique nonce as described by
     http://tools.ietf.org/html/rfc5849#section-3.3
     """
-    hash = md5(str(datetime.now()))
-    return hash.hexdigest()
+    return md5(str(datetime.now())).hexdigest()
 
 def generate_timestamp():
     """
@@ -95,12 +97,12 @@ def get_base_string_uri(scheme, host, path):
     else:
         return '%s://%s%s' % (scheme, host, path)
 
-def dict_to_proplist(input):
+def dict_to_proplist(input_dict):
     """
     Convert a dictionary to a property list (list of tuples). The
     tuples are pairs (key, value).
     """
-    return zip(input.keys(), input.values())
+    return zip(input_dict.keys(), input_dict.values())
 
 def get_normalized_params(params):
     """
@@ -128,19 +130,19 @@ def get_signature_base_string(scheme, host, method, path, params):
         encode_string(get_normalized_params(params)))
     return ''.join(signature_base_string)
 
-def token_from_string(input):
+def token_from_string(input_string):
     """
     Parse a url-encoded string containing token information to make a
     new Token object.
     """
-    parsed = parse_qs(input, True, True)
+    parsed = parse_qs(input_string, True, True)
     return Token(parsed['oauth_token'][0], parsed['oauth_token_secret'][0])
 
-def parse_qs_real(input):
+def parse_qs_real(input_string):
     """
     Parse a query string into a property list of key => value.
     """
-    return [(k, v[0]) for k, v in dict_to_proplist(parse_qs(input))]
+    return [(k, v[0]) for k, v in dict_to_proplist(parse_qs(input_string))]
 
 class Signature(object):
     """
@@ -216,7 +218,7 @@ class SignaturePlaintext(Signature):
         """
         return 'PLAINTEXT'
 
-    def sign(self, msg):
+    def sign(self, _msg):
         """
         Signs the given message (the signature base string) using the
         given secret keys.
@@ -237,6 +239,12 @@ class Token(object):
         """
         self.key = key
         self.secret = secret
+
+    def __eq__(self, other):
+        """
+        Test two token objects for equality.
+        """
+        return self.key == other.key and self.secret == other.secret
     
     def __str__(self):
         """
@@ -262,9 +270,9 @@ class Authorization(object):
         Realm.
         """
         self.params = []
-        for k, v in params:
-            if k[0:6] == 'oauth_':
-                self.params.append((k, v))
+        for key, val in params:
+            if key[0:6] == 'oauth_':
+                self.params.append((key, val))
         self.realm = realm
 
     def get_header(self):
@@ -275,8 +283,8 @@ class Authorization(object):
         for details.
         """
         str_params = []
-        for k, v in self.params:
-            str_params.append(('%s="%s"' % (k, v)))
+        for key, val in self.params:
+            str_params.append(('%s="%s"' % (key, val)))
         return 'OAuth realm="%s",%s' % (
             self.realm, ','.join(str_params))
 
@@ -337,7 +345,7 @@ class Consumer(object):
         sign_params.append(('oauth_signature_method', self.signer.get_name()))
         sign_params.append(('oauth_timestamp', generate_timestamp()))
         sign_params.append(('oauth_nonce', generate_nonce()))
-        sign_params.append(('oauth_version', oauth_version))
+        sign_params.append(('oauth_version', OAUTH_VERSION))
         signature_base_string = get_signature_base_string(
             scheme, host, method, path, sign_params)
         sign_params.append(
