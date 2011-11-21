@@ -11,6 +11,7 @@ going on. That means you can:
   * Support out-of-band verifier codes
   * Use Python's HTTP facilities to their fullest extent (for example,
     file uploading)
+  * Feel confident using a library that has been fully unit-tested
 
 The code behind the library tries to be simple and easy to understand,
 while refering to the relevant sections in the OAuth specification
