@@ -1,5 +1,5 @@
-from ioauth import Consumer
-from ioauth import token_from_string, parse_path, parse_host, parse_port
+from pyoauth import Consumer
+from pyoauth import token_from_string, parse_path, parse_host, parse_port
 from urllib import urlencode
 import httplib
 

@@ -1,7 +1,7 @@
-iOAuth
+pyOAuth
 ======
 
-iOAuth is a Python library for dealing with OAuth.
+pyOAuth is a Python library for dealing with OAuth.
 
 It gives you, the developer, full control over everything that is
 going on. That means you can:
@@ -18,18 +18,14 @@ while refering to the relevant sections in the OAuth specification
 (http://tools.ietf.org/html/rfc5849). So, unlike other libraries, this
 is one that you can follow along with and learn more about OAuth from.
 
-Why the letter i in the name of the library? Because that's the letter
-that my name starts with. Also because I'm upholding the tradition of
-hackers not being able to name projects well.
-
 Twitter Example
 ---------------
 Here is an example of interfacing with Twitter (make you to grab your
 own application credentials first).
 
-    from ioauth import Consumer
-    from ioauth import token_from_string
-    from ioauth import parse_path, parse_host, parse_port, parse_qs_real
+    from pyoauth import Consumer
+    from pyoauth import token_from_string
+    from pyoauth import parse_path, parse_host, parse_port, parse_qs_real
     from urllib import urlencode
     import httplib
 
@@ -86,7 +82,7 @@ Upload Example
 --------------
 
 Uploading files with authentication can be painful, especially if the
-files are large. With iOAuth, it can be a bit easier. Pretend that
+files are large. With pyoauth, it can be a bit easier. Pretend that
 this PHP code lives at http://example.com/upload:
 
     $in = fopen('php://input', 'r');

@@ -1,14 +1,14 @@
-from ioauth import Consumer
-from ioauth import token_from_string
-from ioauth import parse_path, parse_host, parse_port, parse_qs_real
+from pyoauth import Consumer
+from pyoauth import token_from_string
+from pyoauth import parse_path, parse_host, parse_port, parse_qs_real
 from urllib import urlencode
 import httplib
 
 request_token_url = 'https://api.beatport.com/identity/1/oauth/request-token'
 access_token_url = 'https://api.beatport.com/identity/1/oauth/access-token'
 example_data_url = 'https://api.beatport.com/cart/1/'
-consumer_key = 'b'
-consumer_secret = 'a'
+consumer_key = ''
+consumer_secret = ''
 
 consumer = Consumer(consumer_key, consumer_secret)
 params = {'oauth_callback': 'oob'}
