@@ -1,5 +1,5 @@
 """
-iOAuth is a Python library for dealing with OAuth.
+pyoauth is a Python library for dealing with OAuth.
 """
 
 import hmac
