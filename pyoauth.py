@@ -3,11 +3,6 @@ pyoauth is a Python library for dealing with OAuth.
 """
 
 import hmac
-try:
-    from hashlib import md5, sha1
-except ImportError:
-    from md5 import md5
-    import sha as sha1
 from datetime import datetime
 from time import time
 from binascii import b2a_base64
@@ -15,8 +10,11 @@ from urllib import quote
 from urlparse import urlparse
 try:
     from urlparse import parse_qs
+    from hashlib import md5, sha1
 except ImportError:
     from cgi import parse_qs
+    from md5 import md5
+    import sha as sha1
 
 OAUTH_VERSION = '1.0'
 
