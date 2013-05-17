@@ -1,54 +1,121 @@
-from pyoauth import Consumer
-from pyoauth import token_from_string
-from pyoauth import parse_path, parse_host, parse_port, parse_qs_real
-from urllib import urlencode
+import hashlib
+import pyoauth
 import httplib
+from time import time
+from urlparse import parse_qsl
 
-request_token_url = 'https://api.twitter.com/oauth/request_token'
-access_token_url = 'https://api.twitter.com/oauth/access_token'
-authorize_url = 'https://api.twitter.com/oauth/authorize'
-example_data_url = 'https://api.twitter.com/friends/ids'
-consumer_key = ''
-consumer_secret = ''
+host = 'api.twitter.com'
+port = 443
+request_token_url = '/oauth/request_token'
+access_token_url = '/oauth/access_token'
+authorize_url = '/oauth/authorize'
+example_data_url = '/1.1/friends/ids.json'
+consumer_key = 'ZoNZyTXXiBFemfQEYXnmXw' #iliarm
+consumer_secret = 'YH76M3mZoxslhYqQa8tKyThHHebG6zjplyQTfxFk' #iliarm
 
-consumer = Consumer(consumer_key, consumer_secret)
-params = {'oauth_callback': 'oob'}
-signature = consumer.sign_request(request_token_url, 'POST', params)
-headers = {'Authorization': signature.get_header()}
+####################
+# Request token step
+####################
+current_time = time()
+params = {
+    'oauth_callback': 'oob',
+    'oauth_consumer_key': consumer_key,
+    'oauth_nonce': hashlib.sha1(str(current_time)).hexdigest(),
+    'oauth_signature_method': 'HMAC-SHA1',
+    'oauth_timestamp': int(current_time),
+    'oauth_version': 1.0,
+}
+signer = pyoauth.Signer(
+    'https', 'POST', host, port,
+    '%s?%s' % (request_token_url, pyoauth.url_encode(params)))
+signer.consumer_secret_finder = lambda _x: consumer_secret
+oauth_header = signer.make_oauth_header()
 
-conn = httplib.HTTPSConnection(
-    parse_host(request_token_url),
-    parse_port(request_token_url))
-conn.request('POST', parse_path(request_token_url), '', headers)
+conn = httplib.HTTPSConnection(host, port)
+conn.request(
+    'POST', request_token_url, '', {'Authorization': oauth_header})
 response = conn.getresponse()
-
+status = response.status
 body = response.read()
+response.close()
 conn.close()
+if status != 200:
+    raise ValueError(body)
 
-request_token = token_from_string(body)
+response_params = dict(parse_qsl(body))
+request_token_key = response_params['oauth_token']
+request_token_secret = response_params['oauth_token_secret']
 
+###########################################
+# Authorization step (user gets redirected)
+###########################################
 print 'Go here: '
-print '%s?oauth_token=%s' % (authorize_url, request_token.key)
+print 'https://%s%s?oauth_token=%s' % (
+    host, authorize_url, request_token_key)
 print
-oauth_verifier = raw_input('Enter the OAuth Verifier: ')
+oauth_verifier = raw_input('Enter the OAuth Verifier: ').strip()
 
-conn = httplib.HTTPSConnection(
-    parse_host(request_token_url),
-    parse_port(request_token_url))
-consumer = Consumer(consumer_key, consumer_secret, request_token)
-params = {'oauth_verifier': oauth_verifier}
-signature = consumer.sign_request(access_token_url, 'POST', params)
-headers = {'Authorization': signature.get_header()}
-conn.request('POST', parse_path(access_token_url), urlencode(params), headers)
-response = conn.getresponse()
-body = response.read()
-access_token = token_from_string(body)
+###################
+# Access token step
+###################
+current_time += 1
+params = {
+    'oauth_consumer_key': consumer_key,
+    'oauth_token': request_token_key,
+    'oauth_nonce': hashlib.sha1(str(current_time)).hexdigest(),
+    'oauth_signature_method': 'HMAC-SHA1',
+    'oauth_timestamp': int(current_time),
+    'oauth_version': 1.0,
+}
+signer = pyoauth.Signer(
+    'https', 'POST', host, port,
+    '%s?%s' % (access_token_url, pyoauth.url_encode(params)))
+signer.consumer_secret_finder = lambda _x: consumer_secret
+signer.token_secret_finder = lambda _x, _y: request_token_secret
+oauth_header = signer.make_oauth_header()
 
-consumer = Consumer(consumer_key, consumer_secret, access_token)
-signature = consumer.sign_request(example_data_url)
-headers = {'Authorization': signature.get_header()}
-conn.request('GET', parse_path(example_data_url), '', headers)
+conn = httplib.HTTPSConnection(host, port)
+conn.request(
+    'POST', '%s?oauth_verifier=%s' % (access_token_url, oauth_verifier), '',
+    {'Authorization': oauth_header})
 response = conn.getresponse()
+status = response.status
 body = response.read()
-print body
+response.close()
 conn.close()
+if status != 200:
+    raise ValueError(body)
+
+response_params = dict(parse_qsl(body))
+access_token_key = response_params['oauth_token']
+access_token_secret = response_params['oauth_token_secret']
+
+##################
+# Example API call
+##################
+current_time += 1
+params = {
+    'oauth_consumer_key': consumer_key,
+    'oauth_token': access_token_key,
+    'oauth_nonce': hashlib.sha1(str(current_time)).hexdigest(),
+    'oauth_signature_method': 'HMAC-SHA1',
+    'oauth_timestamp': int(current_time),
+    'oauth_version': 1.0,
+}
+signer = pyoauth.Signer(
+    'https', 'GET', host, port,
+    '%s?%s' % (example_data_url, pyoauth.url_encode(params)))
+signer.consumer_secret_finder = lambda _x: consumer_secret
+signer.token_secret_finder = lambda _x, _y: access_token_secret
+oauth_header = signer.make_oauth_header()
+
+conn = httplib.HTTPSConnection(host, port)
+conn.request(
+    'GET', '%s' % example_data_url, '',
+    {'Authorization': oauth_header})
+response = conn.getresponse()
+status = response.status
+body = response.read()
+response.close()
+conn.close()
+print status, body
