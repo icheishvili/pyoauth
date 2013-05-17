@@ -10,8 +10,8 @@ request_token_url = '/oauth/request_token'
 access_token_url = '/oauth/access_token'
 authorize_url = '/oauth/authorize'
 example_data_url = '/1.1/friends/ids.json'
-consumer_key = 'ZoNZyTXXiBFemfQEYXnmXw' #iliarm
-consumer_secret = 'YH76M3mZoxslhYqQa8tKyThHHebG6zjplyQTfxFk' #iliarm
+consumer_key = 'YOUR KEY HERE'
+consumer_secret = 'YOUR SECRET HERE'
 
 ####################
 # Request token step
