@@ -168,7 +168,7 @@ class Signer(object):
 
         if validate_timestamp_and_nonce:
             are_timestamp_and_nonce_valid = self.timestamp_and_nonce_validator(
-                int(self.get_param('oauth_timestamp')),
+                int(self.get_param('oauth_timestamp', 0)),
                 self.get_param('oauth_nonce'),
                 self.get_param('oauth_consumer_key'))
             if not are_timestamp_and_nonce_valid:
