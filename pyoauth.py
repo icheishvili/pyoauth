@@ -141,7 +141,7 @@ class Signer(object):
         non_standard_https_port = self.scheme == 'https' and self.port != 443
         if non_standard_http_port or non_standard_https_port:
             parts.append(':')
-            parts.append(self.port)
+            parts.append(str(self.port))
         parts.append(self.path)
         return ''.join(parts)
 
@@ -168,7 +168,7 @@ class Signer(object):
 
         if validate_timestamp_and_nonce:
             are_timestamp_and_nonce_valid = self.timestamp_and_nonce_validator(
-                self.get_param('oauth_timestamp'),
+                int(self.get_param('oauth_timestamp')),
                 self.get_param('oauth_nonce'),
                 self.get_param('oauth_consumer_key'))
             if not are_timestamp_and_nonce_valid:
